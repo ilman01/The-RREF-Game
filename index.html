@@ -1,0 +1,1866 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The RREF Game</title>
+
+
+<!-- Bootstrap CDN -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+
+    /* Matrix display */
+
+    .matrix-container {
+        display: flex;
+        justify-content: center;
+        overflow-x: auto;
+        padding: 1rem 0;
+    }
+
+    .matrix-grid {
+        display: grid;
+        gap: 0.35rem 0.5rem;
+        align-items: center;
+        justify-items: center;
+        font-family: monospace;
+        font-size: 1.2rem;
+    }
+
+    .matrix-cell {
+        min-width: 2.2rem;
+        padding: 0.25rem 0.4rem;
+        text-align: center;
+    }
+
+    /* Vertical line before augmented column */
+
+    /*.matrix-cell.augmented {
+        border-left: 2px solid currentColor;
+        padding-left: 0.8rem;
+        margin-left: 0.2rem;
+    }*/
+
+    /* Matrix brackets */
+
+    .matrix-wrapper {
+        display: flex;
+        align-items: stretch;
+    }
+
+    .matrix-bracket {
+        width: 0.7rem;
+    }
+
+    .matrix-bracket.left {
+        border-left: 2px solid currentColor;
+        border-top: 2px solid currentColor;
+        border-bottom: 2px solid currentColor;
+        border-radius: 4px 0 0 4px;
+        margin-right: 0.4rem;
+    }
+
+    .matrix-bracket.right {
+        border-right: 2px solid currentColor;
+        border-top: 2px solid currentColor;
+        border-bottom: 2px solid currentColor;
+        border-radius: 0 4px 4px 0;
+        margin-left: 0.4rem;
+    }
+
+    /* Answer input */
+
+    .matrix-input {
+        font-family: monospace;
+        resize: vertical;
+    }
+
+</style>
+
+
+</head>
+
+<body>
+
+
+<div style="margin-top: 4rem !important;"></div>
+
+<!-- Title Section -->
+<section class="container">
+    <div class="d-flex justify-content-center align-items-center flex-column">
+
+        <h1 class="fw-bold">
+            The RREF Game
+        </h1>
+
+        <p class="mb-0" style="font-size: small;">
+
+            This was quickly vibe coded.
+
+            <a
+                href="https://github.com/ilman01/The-RREF-Game"
+                target="_blank"
+                rel="noopener noreferrer">
+                Github
+            </a>
+
+        </p>
+
+    </div>
+</section>
+
+
+<div style="margin-top: 2rem !important;"></div>
+
+
+<!-- Score Section -->
+<section class="d-flex justify-content-center align-items-center gap-4">
+
+    <p class="mb-0" id="high-score-text">
+        High Score: 0
+    </p>
+
+</section>
+
+
+<div style="margin-top: 1rem !important;"></div>
+
+
+<!-- Main Game Section -->
+<section class="d-flex justify-content-center align-items-center">
+
+    <div class="card shadow col-md-6">
+
+        <div class="card-body p-4">
+
+            <!-- Score -->
+            <p
+                class="mb-0"
+                style="font-size: small;"
+                id="score-text">
+
+                Score: 0
+
+            </p>
+
+
+            <!-- Question -->
+            <h5
+                id="question-title"
+                class="card-title mb-3 fw-bold">
+
+                Find the RREF
+
+            </h5>
+
+
+            <!-- Matrix -->
+            <div class="matrix-container">
+
+                <div class="matrix-wrapper">
+
+                    <div class="matrix-bracket left"></div>
+
+                    <div
+                        id="question-main"
+                        class="matrix-grid">
+                    </div>
+
+                    <div class="matrix-bracket right"></div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Feedback -->
+            <pre
+                id="question-feedback"
+                class="card-text"
+                style="font-size: small; display: none;"></pre>
+
+
+            <!-- Answer -->
+            <textarea
+                id="answer-box"
+                class="form-control matrix-input mb-3"
+                rows="6"
+                placeholder="Enter the RREF here..."></textarea>
+
+
+            <!-- Submit -->
+            <button
+                id="submit-button"
+                class="btn btn-success w-100">
+
+                Submit
+
+            </button>
+
+
+            <!-- Instructions -->
+            <button
+                id="instructions-button"
+                class="btn btn-secondary w-100 mt-2"
+                data-bs-toggle="modal"
+                data-bs-target="#instructionsModal">
+
+                Instructions
+
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<div style="margin-top: 2rem !important;"></div>
+
+
+<!-- Settings Section -->
+<section class="container">
+
+    <div
+        class="d-flex justify-content-center align-items-center flex-column gap-3">
+
+        <!-- Matrix Size -->
+        <div class="d-flex align-items-center gap-2">
+
+            <label
+                for="matrix-size"
+                class="fw-bold">
+
+                Matrix Size:
+
+            </label>
+
+            <select
+                id="matrix-size"
+                class="form-select"
+                style="width: auto;">
+
+                <option value="4">
+                    4 × 4
+                </option>
+
+                <option value="5">
+                    5 × 5
+                </option>
+
+                <option value="6">
+                    6 × 6
+                </option>
+
+                <option value="7">
+                    7 × 7
+                </option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+</section>
+
+<div style="margin-bottom: 100px;"></div>
+
+<!-- Instructions Modal -->
+<div
+    class="modal fade"
+    id="instructionsModal"
+    tabindex="-1">
+
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+                    Instructions
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+
+            <div class="modal-body">
+
+                <p>
+                    Find the
+                    <strong>
+                        Reduced Row Echelon Form (RREF)
+                    </strong>
+                    of the matrix.
+                </p>
+
+                <p>
+                    Enter each row on a separate line and
+                    separate numbers with spaces.
+                </p>
+
+                <pre>
+
+
+1 0 3 5
+0 1 2 4
+0 0 0 1
+0 0 0 0 </pre>
+
+
+                <p>
+                    The last column is treated as the
+                    augmented column.
+                </p>
+
+                <p>
+                    A row such as:
+                </p>
+
+                <pre>
+
+
+0 0 0 1 </pre>
+
+
+                <p>
+                    represents an inconsistent system.
+                </p>
+
+                <p class="mb-0">
+                    You may use any valid elementary row
+                    operations to solve the problem.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+
+    // Elements
+
+    const questionMain =
+        document.getElementById("question-main");
+
+    const questionFeedback =
+        document.getElementById("question-feedback");
+
+    const answerBox =
+        document.getElementById("answer-box");
+
+    const submitButton =
+        document.getElementById("submit-button");
+
+    const highScoreText =
+        document.getElementById("high-score-text");
+
+    const scoreText =
+        document.getElementById("score-text");
+
+    const matrixSizeSelect =
+        document.getElementById("matrix-size");
+
+
+    // Game state
+
+    let score = 0;
+
+    let correctAnswer = [];
+
+
+    // --------------------------------------------------
+    // Random helpers
+    // --------------------------------------------------
+
+    function randomInteger(min, max) {
+
+        return Math.floor(
+            Math.random() * (max - min + 1)
+        ) + min;
+
+    }
+
+
+    function randomNonZeroInteger(min, max) {
+
+        let result = 0;
+
+        while (result === 0) {
+
+            result =
+                randomInteger(min, max);
+
+        }
+
+        return result;
+
+    }
+
+
+    // --------------------------------------------------
+    // Generate RREF
+    // --------------------------------------------------
+
+    function generateRREF(size) {
+
+        const rows = size;
+        const cols = size;
+
+        let matrix = [];
+
+        for (let i = 0; i < rows; i++) {
+            matrix.push(new Array(cols).fill(0));
+        }
+
+
+        /*
+            Pick one of three types:
+
+            0 = consistent
+                -> exactly one zero row
+
+            1 = inconsistent
+                -> exactly one inconsistent row
+                -> exactly one zero row
+
+            2 = identity matrix
+        */
+
+        const type = randomInteger(0, 2);
+
+
+        /*
+            IDENTITY MATRIX
+
+            Example for size = 4:
+
+            1 0 0 0
+            0 1 0 0
+            0 0 1 0
+            0 0 0 1
+        */
+
+        if (type === 2) {
+
+            for (let i = 0; i < size; i++) {
+                matrix[i][i] = 1;
+            }
+
+            return matrix;
+        }
+
+
+        /*
+            CONSISTENT / INCONSISTENT
+        */
+
+        const inconsistent = type === 1;
+
+
+        /*
+            Number of normal pivot rows.
+
+            Consistent:
+
+                size - 1 pivot rows
+                1 zero row
+
+            Inconsistent:
+
+                size - 2 pivot rows
+                1 inconsistent row
+                1 zero row
+        */
+
+        let pivotCount;
+
+        if (inconsistent) {
+            pivotCount = size - 2;
+        } else {
+            pivotCount = size - 1;
+        }
+
+
+        /*
+            Choose pivot columns from the variable columns.
+
+            The augmented column cannot be a normal pivot
+            for the consistent case.
+        */
+
+        let pivotColumns = [];
+
+        while (pivotColumns.length < pivotCount) {
+
+            let column =
+                randomInteger(
+                    0,
+                    cols - 2
+                );
+
+            if (!pivotColumns.includes(column)) {
+                pivotColumns.push(column);
+            }
+        }
+
+
+        /*
+            Sort pivot columns.
+
+            RREF requires pivots to move
+            from left to right.
+        */
+
+        pivotColumns.sort(
+            (a, b) => a - b
+        );
+
+
+        /*
+            Create the normal pivot rows.
+        */
+
+        for (let row = 0; row < pivotCount; row++) {
+
+            const pivotColumn =
+                pivotColumns[row];
+
+
+            /*
+                Put the leading 1.
+            */
+
+            matrix[row][pivotColumn] = 1;
+
+
+            /*
+                Fill NON-PIVOT columns only.
+
+                This includes the augmented column.
+
+                However, only columns AFTER the pivot
+                are allowed to contain values.
+
+                This guarantees that everything to the
+                left of the leading 1 is zero.
+            */
+
+            for (
+                let column = pivotColumn + 1;
+                column < cols;
+                column++
+            ) {
+
+                /*
+                    Never put values into another
+                    pivot column.
+                */
+
+                if (pivotColumns.includes(column)) {
+                    continue;
+                }
+
+                matrix[row][column] =
+                    randomInteger(-5, 5);
+            }
+        }
+
+
+        /*
+            INCONSISTENT ROW
+        */
+
+        if (inconsistent) {
+
+            const inconsistencyRow = pivotCount;
+
+            /*
+                Variable columns are already zero.
+            */
+
+            /*
+                The augmented column gets a pivot.
+
+                Since this is a pivot, every value ABOVE
+                it must also be zero.
+
+                Therefore, remove any values that were
+                generated in the augmented column above.
+            */
+
+            for (let row = 0; row < inconsistencyRow; row++) {
+                matrix[row][cols - 1] = 0;
+            }
+
+            /*
+                Put the inconsistent 1.
+            */
+
+            matrix[inconsistencyRow][cols - 1] = 1;
+        }
+
+
+        /*
+            Final row remains completely zero.
+        */
+
+        return matrix;
+    }
+
+    // --------------------------------------------------
+    // Elementary row operations
+    // --------------------------------------------------
+
+    function swapRows(matrix, row1, row2) {
+
+        let temp = matrix[row1];
+
+        matrix[row1] = matrix[row2];
+
+        matrix[row2] = temp;
+
+    }
+
+
+    function multiplyRow(
+        matrix,
+        row,
+        multiplier
+    ) {
+
+        for (
+            let column = 0;
+            column < matrix[row].length;
+            column++
+        ) {
+
+            matrix[row][column] *=
+                multiplier;
+
+        }
+
+    }
+
+
+    function addMultipleOfRow(
+        matrix,
+        targetRow,
+        sourceRow,
+        multiplier
+    ) {
+
+        for (
+            let column = 0;
+            column < matrix[targetRow].length;
+            column++
+        ) {
+
+            matrix[targetRow][column] +=
+                matrix[sourceRow][column] *
+                multiplier;
+
+        }
+
+    }
+
+
+    // --------------------------------------------------
+    // Check for zero row
+    // --------------------------------------------------
+
+    function isZeroRow(row) {
+
+        return row.every(
+            value => value === 0
+        );
+
+    }
+
+
+    // --------------------------------------------------
+    // Check for obvious inconsistency
+    // --------------------------------------------------
+
+    function isObviousInconsistency(row) {
+
+        /*
+            An augmented matrix has an obvious
+            inconsistency when:
+
+                0 0 0 ... 0 | non-zero
+
+            So every variable coefficient must
+            be zero while the final value isn't.
+        */
+
+        let last =
+            row[row.length - 1];
+
+
+        let variablePart =
+            row.slice(
+                0,
+                row.length - 1
+            );
+
+
+        return (
+            variablePart.every(
+                value => value === 0
+            )
+            &&
+            last !== 0
+        );
+
+    }
+
+
+    // --------------------------------------------------
+    // Find a useful source row
+    // --------------------------------------------------
+
+    function findNonZeroRow(
+        matrix,
+        excludedRow
+    ) {
+
+        let candidates = [];
+
+
+        for (
+            let row = 0;
+            row < matrix.length;
+            row++
+        ) {
+
+            if (row === excludedRow) {
+                continue;
+            }
+
+
+            if (
+                !isZeroRow(matrix[row])
+            ) {
+
+                candidates.push(row);
+
+            }
+
+        }
+
+
+        if (candidates.length === 0) {
+            return null;
+        }
+
+
+        return candidates[
+            randomInteger(
+                0,
+                candidates.length - 1
+            )
+        ];
+
+    }
+
+
+    // --------------------------------------------------
+    // Remove obvious special rows
+    // --------------------------------------------------
+
+    function hideObviousRows(matrix) {
+
+        /*
+            Keep fixing special rows until there are
+            no obvious zero rows or inconsistency rows.
+
+            We specifically use:
+
+                R_target <- R_target + kR_source
+
+            for this part.
+        */
+
+        let changed = true;
+
+        let safetyCounter = 0;
+
+
+        while (
+            changed &&
+            safetyCounter < 100
+        ) {
+
+            changed = false;
+
+            safetyCounter++;
+
+
+            for (
+                let row = 0;
+                row < matrix.length;
+                row++
+            ) {
+
+                let zeroRow =
+                    isZeroRow(
+                        matrix[row]
+                    );
+
+
+                let inconsistentRow =
+                    isObviousInconsistency(
+                        matrix[row]
+                    );
+
+
+                if (
+                    !zeroRow &&
+                    !inconsistentRow
+                ) {
+
+                    continue;
+
+                }
+
+
+                /*
+                    Find a non-zero row to add.
+                */
+
+                let sourceRow =
+                    findNonZeroRow(
+                        matrix,
+                        row
+                    );
+
+
+                if (sourceRow === null) {
+                    continue;
+                }
+
+
+                /*
+                    Try several multipliers until
+                    the resulting row is no longer
+                    obviously special.
+                */
+
+                let possibleMultipliers = [
+                    -3,
+                    -2,
+                    -1,
+                    1,
+                    2,
+                    3
+                ];
+
+
+                let successful = false;
+
+
+                /*
+                    Shuffle the possible multipliers.
+                */
+
+                possibleMultipliers.sort(
+                    () => Math.random() - 0.5
+                );
+
+
+                for (
+                    let multiplier
+                    of possibleMultipliers
+                ) {
+
+                    let testRow = [
+                        ...matrix[row]
+                    ];
+
+
+                    for (
+                        let column = 0;
+                        column < testRow.length;
+                        column++
+                    ) {
+
+                        testRow[column] +=
+                            matrix[sourceRow][column] *
+                            multiplier;
+
+                    }
+
+
+                    if (
+                        !isZeroRow(testRow) &&
+                        !isObviousInconsistency(testRow)
+                    ) {
+
+                        addMultipleOfRow(
+                            matrix,
+                            row,
+                            sourceRow,
+                            multiplier
+                        );
+
+
+                        successful = true;
+
+                        break;
+
+                    }
+
+                }
+
+
+                if (successful) {
+                    changed = true;
+                }
+
+            }
+
+        }
+
+
+        return matrix;
+
+    }
+
+    // --------------------------------------------------
+    // Random Prime Number
+    // --------------------------------------------------
+
+    function randomPrimeNumber(min, max) {
+
+        let numbers = [];
+
+        for (let number = min; number <= max; number++) {
+
+            let absolute = Math.abs(number);
+
+            // 1 and -1 are allowed
+            if (absolute === 1) {
+                numbers.push(number);
+                continue;
+            }
+
+            if (absolute < 2) {
+                continue;
+            }
+
+            let isPrime = true;
+
+            for (let divisor = 2; divisor < absolute; divisor++) {
+
+                if (absolute % divisor === 0) {
+                    isPrime = false;
+                    break;
+                }
+
+            }
+
+            if (isPrime) {
+                numbers.push(number);
+            }
+
+        }
+
+        return numbers[
+            Math.floor(Math.random() * numbers.length)
+        ];
+
+    }
+
+    // --------------------------------------------------
+    // Scramble matrix
+    // --------------------------------------------------
+
+    function scrambleMatrix(matrix) {
+
+        let size =
+            matrix.length;
+
+
+        /*
+            Do random elementary operations first.
+        */
+
+        let operationCount =
+            randomInteger(
+                size * 1,
+                size * 2
+            );
+
+
+        for (
+            let i = 0;
+            i < operationCount;
+            i++
+        ) {
+
+            let operation =
+                randomInteger(1, 3);
+
+
+            // Row swap
+
+            if (operation === 1) {
+
+                let row1 =
+                    randomInteger(
+                        0,
+                        size - 1
+                    );
+
+
+                let row2 =
+                    randomInteger(
+                        0,
+                        size - 1
+                    );
+
+
+                while (
+                    row1 === row2
+                ) {
+
+                    row2 =
+                        randomInteger(
+                            0,
+                            size - 1
+                        );
+
+                }
+
+
+                swapRows(
+                    matrix,
+                    row1,
+                    row2
+                );
+
+            }
+
+
+            // Row multiplication
+
+            else if (
+                operation === 2
+            ) {
+
+                let row =
+                    randomInteger(
+                        0,
+                        size - 1
+                    );
+
+
+                let multiplier =
+                    randomPrimeNumber(
+                        -7,
+                        7
+                    );
+
+
+                multiplyRow(
+                    matrix,
+                    row,
+                    multiplier
+                );
+
+            }
+
+
+            // Row addition
+
+            else {
+
+                let targetRow =
+                    randomInteger(
+                        0,
+                        size - 1
+                    );
+
+
+                let sourceRow =
+                    randomInteger(
+                        0,
+                        size - 1
+                    );
+
+
+                while (
+                    targetRow === sourceRow
+                ) {
+
+                    sourceRow =
+                        randomInteger(
+                            0,
+                            size - 1
+                        );
+
+                }
+
+
+                let multiplier =
+                    randomPrimeNumber(
+                        -7,
+                        7
+                    );
+
+
+                addMultipleOfRow(
+                    matrix,
+                    targetRow,
+                    sourceRow,
+                    multiplier
+                );
+
+            }
+
+        }
+
+
+        /*
+            Finally, make sure the question does not
+            visibly contain:
+
+                0 0 0 0
+
+            or:
+
+                0 0 0 1
+
+            We do this using row addition, so the
+            matrix remains row-equivalent.
+        */
+
+        hideObviousRows(matrix);
+
+
+        return matrix;
+
+    }
+
+
+    // --------------------------------------------------
+    // Display matrix using CSS Grid
+    // --------------------------------------------------
+
+    function displayMatrix(matrix) {
+
+        questionMain.innerHTML = "";
+
+
+        let rows =
+            matrix.length;
+
+        let cols =
+            matrix[0].length;
+
+
+        /*
+            CSS grid needs the number of columns.
+        */
+
+        questionMain.style.gridTemplateColumns =
+            `repeat(${cols}, auto)`;
+
+
+        for (
+            let row = 0;
+            row < rows;
+            row++
+        ) {
+
+            for (
+                let column = 0;
+                column < cols;
+                column++
+            ) {
+
+                let cell =
+                    document.createElement("div");
+
+
+                cell.className =
+                    "matrix-cell";
+
+
+                /*
+                    The last column is the
+                    augmented column.
+
+                    Add the vertical divider.
+                */
+
+                if (
+                    column === cols - 1
+                ) {
+
+                    cell.classList.add(
+                        "augmented"
+                    );
+
+                }
+
+
+                cell.textContent =
+                    matrix[row][column];
+
+
+                questionMain.appendChild(
+                    cell
+                );
+
+            }
+
+        }
+
+    }
+
+
+    // --------------------------------------------------
+    // Matrix formatting for answer feedback
+    // --------------------------------------------------
+
+    function matrixToString(matrix) {
+
+        return matrix
+            .map(
+                row => row.join(" ")
+            )
+            .join("\n");
+
+    }
+
+
+    // --------------------------------------------------
+    // Parse user's answer
+    // --------------------------------------------------
+
+    function parseMatrix(
+        input,
+        size
+    ) {
+
+        let lines =
+            input
+                .trim()
+                .split(/\n+/)
+                .map(
+                    line => line.trim()
+                )
+                .filter(
+                    line => line.length > 0
+                );
+
+
+        if (
+            lines.length !== size
+        ) {
+
+            return null;
+
+        }
+
+
+        let matrix = [];
+
+
+        for (
+            let line of lines
+        ) {
+
+            let values =
+                line
+                    .split(/[\s,]+/)
+                    .filter(
+                        value =>
+                            value.length > 0
+                    );
+
+
+            if (
+                values.length !== size
+            ) {
+
+                return null;
+
+            }
+
+
+            let row = [];
+
+
+            for (
+                let value of values
+            ) {
+
+                /*
+                    Only integers are accepted.
+                */
+
+                if (
+                    !/^-?\d+$/.test(value)
+                ) {
+
+                    return null;
+
+                }
+
+
+                row.push(
+                    Number(value)
+                );
+
+            }
+
+
+            matrix.push(row);
+
+        }
+
+
+        return matrix;
+
+    }
+
+
+    // --------------------------------------------------
+    // Compare matrices
+    // --------------------------------------------------
+
+    function matricesEqual(
+        matrix1,
+        matrix2
+    ) {
+
+        if (
+            matrix1.length !==
+            matrix2.length
+        ) {
+
+            return false;
+
+        }
+
+
+        for (
+            let i = 0;
+            i < matrix1.length;
+            i++
+        ) {
+
+            if (
+                matrix1[i].length !==
+                matrix2[i].length
+            ) {
+
+                return false;
+
+            }
+
+
+            for (
+                let j = 0;
+                j < matrix1[i].length;
+                j++
+            ) {
+
+                if (
+                    matrix1[i][j] !==
+                    matrix2[i][j]
+                ) {
+
+                    return false;
+
+                }
+
+            }
+
+        }
+
+
+        return true;
+
+    }
+
+
+    // --------------------------------------------------
+    // Generate question
+    // --------------------------------------------------
+
+    function generateQuestion() {
+
+        let size =
+            Number(
+                matrixSizeSelect.value
+            );
+
+
+        /*
+            First generate the actual RREF.
+        */
+
+        correctAnswer =
+            generateRREF(size);
+
+        console.log("DEBUG ANSWER: ")
+        console.log(correctAnswer.map(row => row.join(" ")).join("\n"));
+
+        /*
+            Make a copy so that the answer remains
+            untouched.
+        */
+
+        let questionMatrix =
+            correctAnswer.map(
+                row => [...row]
+            );
+
+
+        /*
+            Scramble the RREF.
+        */
+
+        scrambleMatrix(
+            questionMatrix
+        );
+
+
+        /*
+            Display using CSS Grid.
+        */
+
+        displayMatrix(
+            questionMatrix
+        );
+
+
+        answerBox.value = "";
+
+    }
+
+
+    // --------------------------------------------------
+    // Score
+    // --------------------------------------------------
+
+    function resetScore() {
+
+        highScoreText.style.fontWeight =
+            "normal";
+
+
+        score = 0;
+
+
+        scoreText.textContent =
+            "Score: " + score;
+
+    }
+
+
+    // --------------------------------------------------
+    // Submit answer
+    // --------------------------------------------------
+
+    submitButton.addEventListener(
+        "click",
+        () => {
+            questionFeedback.style.display = "block";
+
+            let size =
+                Number(
+                    matrixSizeSelect.value
+                );
+
+
+            let userMatrix =
+                parseMatrix(
+                    answerBox.value,
+                    size
+                );
+
+
+            /*
+                Invalid format.
+            */
+
+            if (
+                userMatrix === null
+            ) {
+
+                questionFeedback.style.color =
+                    "red";
+
+
+                questionFeedback.textContent =
+                    "Invalid matrix. Enter exactly " +
+                    size +
+                    " rows with " +
+                    size +
+                    " integers each.";
+
+
+                flashColor(
+                    scoreText,
+                    "red",
+                    1
+                );
+
+
+                return;
+
+            }
+
+
+            /*
+                Correct.
+            */
+
+            if (
+                matricesEqual(
+                    userMatrix,
+                    correctAnswer
+                )
+            ) {
+
+                questionFeedback.style.color =
+                    "green";
+
+
+                questionFeedback.textContent =
+                    "Correct!";
+
+
+                /*
+                    Larger matrices give more points.
+                */
+
+                score += size;
+
+
+                scoreText.textContent =
+                    "Score: " + score;
+
+
+                flashColor(
+                    scoreText,
+                    "limegreen",
+                    1
+                );
+
+
+                let highScore =
+                    Number(
+                        getCookie(
+                            "high-score"
+                        ) || 0
+                    );
+
+
+                if (
+                    score > highScore
+                ) {
+
+                    setCookie(
+                        "high-score",
+                        score
+                    );
+
+
+                    highScoreText.style.fontWeight =
+                        "bold";
+
+
+                    flashColor(
+                        highScoreText,
+                        "limegreen",
+                        1
+                    );
+
+
+                    highScoreText.textContent =
+                        "High Score: " +
+                        score;
+
+                }
+
+
+                generateQuestion();
+
+            }
+
+
+            /*
+                Wrong.
+            */
+
+            else {
+
+                questionFeedback.style.color =
+                    "red";
+
+
+                questionFeedback.textContent =
+                    "Wrong. Correct RREF was:\n" +
+                    correctAnswer.map(row => row.join(" ")).join("\n");
+
+
+                flashColor(
+                    scoreText,
+                    "red",
+                    1
+                );
+
+
+                let highScore =
+                    Number(
+                        getCookie(
+                            "high-score"
+                        ) || 0
+                    );
+
+
+                if (
+                    score === highScore &&
+                    score > 0
+                ) {
+
+                    flashColor(
+                        highScoreText,
+                        "red",
+                        5
+                    );
+
+                }
+
+
+                resetScore();
+
+                generateQuestion();
+
+            }
+
+        }
+    );
+
+
+    // --------------------------------------------------
+    // Matrix size
+    // --------------------------------------------------
+
+    matrixSizeSelect.addEventListener(
+        "change",
+        () => {
+
+            questionFeedback.textContent = "";
+            questionFeedback.style.display = "none";
+
+
+            resetScore();
+
+
+            generateQuestion();
+
+        }
+    );
+
+
+    // --------------------------------------------------
+    // Ctrl + Enter
+    // --------------------------------------------------
+
+    answerBox.addEventListener(
+        "keydown",
+        (e) => {
+
+            /*
+                Enter creates a new row.
+
+                Ctrl + Enter submits.
+            */
+
+            if (
+                e.key === "Enter" &&
+                e.ctrlKey
+            ) {
+
+                e.preventDefault();
+
+                submitButton.click();
+
+            }
+
+        }
+    );
+
+
+    // --------------------------------------------------
+    // Flash color
+    // --------------------------------------------------
+
+    function flashColor(
+        element,
+        color,
+        duration
+    ) {
+
+        const originalColor =
+            getComputedStyle(
+                element
+            ).color;
+
+
+        element.style.transition =
+            "none";
+
+
+        element.style.color =
+            color;
+
+
+        void element.offsetWidth;
+
+
+        element.style.transition =
+            "color " +
+            duration +
+            "s ease";
+
+
+        element.style.color =
+            originalColor;
+
+
+        setTimeout(
+            () => {
+
+                element.style.transition =
+                    "";
+
+                element.style.color =
+                    "";
+
+            },
+            duration * 1000
+        );
+
+    }
+
+
+    // --------------------------------------------------
+    // Cookies
+    // --------------------------------------------------
+
+    function setCookie(
+        cookieName,
+        value
+    ) {
+
+        const d =
+            new Date();
+
+
+        d.setFullYear(
+            d.getFullYear() + 2
+        );
+
+
+        document.cookie =
+            `${cookieName}=${encodeURIComponent(value)};expires=${d.toUTCString()};path=/`;
+
+    }
+
+
+    function getCookie(
+        cookieName
+    ) {
+
+        const nameEQ =
+            cookieName + "=";
+
+
+        const decodedCookies =
+            decodeURIComponent(
+                document.cookie
+            );
+
+
+        const cookiesArray =
+            decodedCookies.split("; ");
+
+
+        for (
+            let cookie of cookiesArray
+        ) {
+
+            if (
+                cookie.indexOf(
+                    nameEQ
+                ) === 0
+            ) {
+
+                return cookie.substring(
+                    nameEQ.length
+                );
+
+            }
+
+        }
+
+
+        return null;
+
+    }
+
+
+    // --------------------------------------------------
+    // Init
+    // --------------------------------------------------
+
+    if (
+        !getCookie("high-score")
+    ) {
+
+        setCookie(
+            "high-score",
+            0
+        );
+
+    }
+
+
+    highScoreText.textContent =
+        "High Score: " +
+        getCookie("high-score");
+
+
+    generateQuestion();
+
+</script>
+
+
+</body>
+</html>
