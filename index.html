@@ -190,6 +190,12 @@
                 rows="6"
                 placeholder="Enter the RREF here..."></textarea>
 
+            <!-- Shortcuts -->
+            <div style="display: flex; margin-bottom: 10px; gap: 10px; flex-wrap: wrap;">
+                <p style="margin-bottom: 0px; font-size: small;">Shortcut:</p>
+                <button id="zero-matrix-button" class="btn btn-info btn-sm">0 Matrix</button>
+                <button id="identity-matrix-button" class="btn btn-info btn-sm">Identity Matrix</button>
+            </div>
 
             <!-- Submit -->
             <button
@@ -379,6 +385,12 @@
     const matrixSizeSelect =
         document.getElementById("matrix-size");
 
+    const zeroMatrixButton =
+        document.getElementById("zero-matrix-button");
+
+    const identityMatrixButton =
+        document.getElementById("identity-matrix-button");
+
 
     // Game state
 
@@ -415,6 +427,68 @@
 
     }
 
+    // --------------------------------------------------
+    // Generate zero matrix
+    // --------------------------------------------------
+
+    zeroMatrixButton.addEventListener("click", function () {
+
+        const size = Number(matrixSizeSelect.value);
+
+        let matrix = [];
+
+        for (let row = 0; row < size; row++) {
+
+            let currentRow = [];
+
+            for (let column = 0; column < size; column++) {
+                currentRow.push(0);
+            }
+
+            matrix.push(currentRow);
+        }
+
+        answerBox.value =
+            matrix
+                .map(row => row.join(" "))
+                .join("\n");
+
+    });
+
+
+    // --------------------------------------------------
+    // Generate identity matrix
+    // --------------------------------------------------
+
+    identityMatrixButton.addEventListener("click", function () {
+
+        const size = Number(matrixSizeSelect.value);
+
+        let matrix = [];
+
+        for (let row = 0; row < size; row++) {
+
+            let currentRow = [];
+
+            for (let column = 0; column < size; column++) {
+
+                if (row === column) {
+                    currentRow.push(1);
+                } else {
+                    currentRow.push(0);
+                }
+
+            }
+
+            matrix.push(currentRow);
+        }
+
+        answerBox.value =
+            matrix
+                .map(row => row.join(" "))
+                .join("\n");
+
+    });
 
     // --------------------------------------------------
     // Generate RREF
